@@ -1,0 +1,103 @@
+[project]
+name = "pdm-build-locked"
+dynamic = ["version"]
+description = '''\
+        pdm-build-locked is a pdm plugin to add locked packages as additional optional dependency groups
+        to the distribution metadata
+    '''
+readme = "README.rst"
+keywords = [
+    "pdm",
+    "plugin"
+]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11"
+]
+authors = [
+    {name = "sigma67", email = "sigma67.github@gmail.com"},
+]
+dependencies = []
+requires-python = ">=3.8"
+
+[project.entry-points.pdm]
+pdm-build-locked = "pdm_build_locked:plugin"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+#########
+# TOOLS #
+#########
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.build]
+package-dir = "src"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pdm>=2.8.0",
+    "black>=23.7.0",
+    "isort>=5.12.0",
+    "pylint>=2.17.4",
+    "mypy>=1.4.1",
+]
+
+[tool.black]
+## black code formatter settings
+line-length = 120
+
+
+[tool.isort]
+profile = "black"
+src_paths = ["src", "tests"]
+
+
+[tool.pylint]
+## pylint linter settings
+## see `pylint --generate-toml-config`
+## justify single line via:  # pylint: disable=<rule>
+
+[tool.pylint.main]
+ignore-paths = [
+    ".git",
+    "__pypackages__",
+    # "tests"  # enable/disable linting within tests directory
+]
+load-plugins = [
+    "pylint.extensions.docparams"
+]
+accept-no-param-doc="no"
+accept-no-raise-doc="no"
+accept-no-yields-doc="no"
+default-docstring-type="google"
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint."messages control"]
+disable = [
+    "fixme"
+]
+
+[tool.mypy]
+## mypy static typechecker settings
+## see https://mypy.readthedocs.io/en/stable/config_file.html
+## justify single line via:
+##     # type: ignore[<error-code>]
+##     # type: ignore
+files = [
+    "src/",
+    "tests/"  # enable/disable linting within tests directory
+]
+mypy_path = "src"
+show_error_codes = true
+strict = true  # https://mypy.readthedocs.io/en/stable/config_file.html#confval-strict
