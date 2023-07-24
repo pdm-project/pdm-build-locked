@@ -1,0 +1,68 @@
+########################################################################################################################
+# Project Settings                                                                                                     #
+########################################################################################################################
+[project]
+name = "large"
+dynamic = ["version"]
+description = "test"
+keywords = [
+    "python",
+    "module",
+]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "cement==3.0.8",
+    "jinja2==3.1.2",
+    "dacite==1.8.1",
+    "matplotlib==3.7.2",
+    "platformdirs==3.8.1",
+    "packaging==23.1",
+    "requests==2.31.0",
+    "gitpython==3.1.32",
+    "matplotlib==3.7.1"
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+cow = [
+    "pycowsay"
+]
+extras = [
+    "typing-extensions"
+]
+
+[build-system]
+requires = ["pdm-backend>=2.0.7"]
+build-backend = "pdm.backend"
+
+
+########################################################################################################################
+# Tools Settings                                                                                                       #
+########################################################################################################################
+
+####################
+# PDM              #
+####################
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.build]
+package-dir = "src"
+locked = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    # format
+    "black>=23.7.0",
+    "isort>=5.12.0",
+    # lint
+    "mypy>=1.4.1",
+]

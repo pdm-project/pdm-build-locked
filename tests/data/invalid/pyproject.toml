@@ -1,0 +1,11 @@
+[project]
+name = "test-pdm"
+version = "0.1.0"
+dependencies = ["requests"]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+locked = ["PySocks"]
+
+[tool.pdm.dev-dependencies]
+test = ["pytest"]
