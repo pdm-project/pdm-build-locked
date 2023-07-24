@@ -21,4 +21,4 @@ pdm-build-locked: Publish locked dependencies
 pdm-build-locked is a pdm plugin to add locked packages as additional
 optional dependency groups to the distribution metadata.
 
-
+Documentation: https://pdm-build-locked.readthedocs.io
