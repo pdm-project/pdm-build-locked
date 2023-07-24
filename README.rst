@@ -1,7 +1,7 @@
 pdm-build-locked: Publish locked dependencies
 #############################################
 
-. image:: https://img.shields.io/pypi/dm/pdm-build-locked?style=flat-square
+.. image:: https://img.shields.io/pypi/dm/pdm-build-locked?style=flat-square
     :alt: PyPI Downloads
     :target: https://pypi.org/project/pdm-build-locked/
 

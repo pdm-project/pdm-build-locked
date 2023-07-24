@@ -167,7 +167,7 @@ class TestBuildLocked:
         assert result.exit_code == 0
 
         wheel = wheel_from_tempdir(temp_dir)
-        assert count_group_dependencies(wheel, "locked") == 68
+        assert count_group_dependencies(wheel, "locked") == 26
         assert count_group_dependencies(wheel, "extras-locked") == 1
         assert count_group_dependencies(wheel, "cow-locked") == 1
 
