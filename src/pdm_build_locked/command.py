@@ -2,14 +2,16 @@
 import argparse
 import subprocess
 from contextlib import suppress
-from typing import Dict, List, Set, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 from pdm.cli import actions
 from pdm.cli.commands.build import Command as BaseCommand
 from pdm.exceptions import PdmException
 from pdm.models.candidates import Candidate
-from pdm.models.requirements import Requirement, parse_requirement
+from pdm.models.requirements import Requirement
 from pdm.project.core import Project
+from pdm.resolver import resolve
+from resolvelib import BaseReporter
 
 DependencyList = Dict[str, Union[List[str], Dict[str, List[str]]]]
 
@@ -55,7 +57,7 @@ class BuildCommand(BaseCommand):
         self._update_lockfile(project)
 
         # retrieve locked dependencies and write to pyproject
-        optional_dependencies: Dict[str, Set[str]] = {}
+        optional_dependencies: Dict[str, List[str]] = {}
 
         ###############################
         # determine locked dependencies
@@ -66,19 +68,14 @@ class BuildCommand(BaseCommand):
             locked_package_version[str(package.name)] = (package_key, package)
 
         for group in groups:
-            group_name = self._get_locked_group_name(group)
-            optional_dependencies[group_name] = set()
+            locked_group_name = self._get_locked_group_name(group)
 
-            for dependency in project.all_dependencies[group].values():
-                locked_packages = self._get_locked_packages(project, locked_package_version, str(dependency.name))
-                optional_dependencies[group_name].update(locked_packages)
+            locked_packages = self._get_locked_packages(project, group)
+            optional_dependencies[locked_group_name] = locked_packages
 
         ####################
         # write to pyproject
         ####################
-        # transform sets to list for target project.pyproject.metadata
-        optional_dependencies_pyproject = dict((key, list(value)) for key, value in optional_dependencies.items())
-        optional_dependencies_pyproject.update(project.pyproject.metadata.get("optional-dependencies", {}))
 
         # get reference to optional-dependencies in project.pyproject, or create it if it doesn't exist
         optional = project.pyproject.metadata.get(
@@ -86,7 +83,7 @@ class BuildCommand(BaseCommand):
         ) or project.pyproject.metadata.setdefault("optional-dependencies", {})
 
         # update target
-        optional.update(optional_dependencies_pyproject)
+        optional.update(optional_dependencies)
         project.pyproject.write()
 
         # to prevent unclean scm status, we need to ignore pyproject.toml during build
@@ -141,41 +138,28 @@ class BuildCommand(BaseCommand):
         return group_name
 
     @staticmethod
-    def _get_locked_packages(
-        project: Project, locked_package_version: Dict[str, Tuple[CandidateKey, Candidate]], pkg: str
-    ) -> Set[str]:
+    def _get_locked_packages(project: Project, group: str) -> List[str]:
         """
-        Recursively determine locked dependency strings
-        For
-
-        Target: the locked optional-dependency groups in pyproject.toml
+        Determine locked dependency strings for direct and transitive dependencies
 
         Args:
             project: the pdm Project
-            locked_package_version: data structure based on current lockfile mapping package name to lockfile Candidate
-            pkg: package name
+            group: the group to get pinned dependencies for
 
         Returns:
             Set of locked packages
         """
-        locked_packages: Set[str] = set()
-        pkg = pkg.lower()
+        requirements: Dict[str, Requirement] = project.get_dependencies(group)
 
-        package_key, package = locked_package_version[pkg]
+        # taken from pdm.actions.resolve_candidates_from_lockfile and adjusted so
+        # that environment markers are not evaluated
+        # -- we want to publish all requirements with markers
+        provider = project.get_provider(ignore_compatibility=True)
+        resolver = project.core.resolver_class(provider, BaseReporter())  # type: ignore
+        reqs = list(requirements.values())
+        candidates, *_ = resolve(resolver, reqs, project.environment.python_requires)
 
-        # lock self
-        locked_packages.add(str(package.req))  # pdm Requirement classes implement __repr__
-
-        # lock self requirements, if any
-        reqs, _, _ = project.locked_repository.candidate_info[package_key]
-        sub_dependencies: List[Requirement] = list(map(parse_requirement, reqs))
-        for sub_dependency in sub_dependencies:
-            # recursing into self for each sub-package
-            locked_packages.update(
-                BuildCommand._get_locked_packages(project, locked_package_version, str(sub_dependency.name))
-            )
-
-        return locked_packages
+        return [str(c.req) for c in candidates.values()]
 
     @staticmethod
     def _git_ignore_pyproject(project: Project, ignore: bool = True) -> None:
