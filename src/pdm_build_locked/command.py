@@ -154,12 +154,12 @@ class BuildCommand(BaseCommand):
         # taken from pdm.actions.resolve_candidates_from_lockfile and adjusted so
         # that environment markers are not evaluated
         # -- we want to publish all requirements with markers
-        provider = project.get_provider(ignore_compatibility=True)
+        provider = project.get_provider(strategy="reuse", ignore_compatibility=True)
         resolver = project.core.resolver_class(provider, BaseReporter())  # type: ignore
         reqs = list(requirements.values())
         candidates, *_ = resolve(resolver, reqs, project.environment.python_requires)
 
-        return [str(c.req) for c in candidates.values()]
+        return [str(c.req.as_pinned_version(c.version)) for c in candidates.values()]
 
     @staticmethod
     def _git_ignore_pyproject(project: Project, ignore: bool = True) -> None:
