@@ -7,10 +7,11 @@ from typing import Dict, List, Tuple, Union
 from pdm.cli import actions
 from pdm.cli.commands.build import Command as BaseCommand
 from pdm.exceptions import PdmException
-from pdm.models.candidates import Candidate
 from pdm.models.requirements import Requirement
 from pdm.project.core import Project
 from pdm.resolver import resolve
+from pdm.resolver.providers import ReusePinProvider
+from pdm.utils import normalize_name
 from resolvelib import BaseReporter
 
 DependencyList = Dict[str, Union[List[str], Dict[str, List[str]]]]
@@ -62,10 +63,7 @@ class BuildCommand(BaseCommand):
         ###############################
         # determine locked dependencies
         ###############################
-        # performance optimization: we prepare the data structure here instead of searching inside the loop
-        locked_package_version: Dict[str, Tuple[CandidateKey, Candidate]] = {}
-        for package_key, package in project.locked_repository.packages.items():
-            locked_package_version[str(package.name)] = (package_key, package)
+        project.core.ui.echo("pdm-build-locked - Resolving locked packages from lockfile...")
 
         for group in groups:
             locked_group_name = self._get_locked_group_name(group)
@@ -84,7 +82,7 @@ class BuildCommand(BaseCommand):
 
         # update target
         optional.update(optional_dependencies)
-        project.pyproject.write()
+        project.pyproject.write(show_message=False)
 
         # to prevent unclean scm status, we need to ignore pyproject.toml during build
         self._git_ignore_pyproject(project, True)
@@ -99,7 +97,7 @@ class BuildCommand(BaseCommand):
             for group in locked_groups:
                 with suppress(KeyError):
                     project.pyproject.metadata.get("optional-dependencies", {}).pop(group)
-            project.pyproject.write()
+            project.pyproject.write(show_message=False)
             self._git_ignore_pyproject(project, False)
 
     @staticmethod
@@ -151,10 +149,19 @@ class BuildCommand(BaseCommand):
         """
         requirements: Dict[str, Requirement] = project.get_dependencies(group)
 
-        # taken from pdm.actions.resolve_candidates_from_lockfile and adjusted so
-        # that environment markers are not evaluated
-        # -- we want to publish all requirements with markers
-        provider = project.get_provider(strategy="reuse", ignore_compatibility=True)
+        # get a ReusePinProvider - we don't want any calls to the remote repository,
+        # we just want to read from the lockfile
+        locked_repository = project.locked_repository
+        locked_repository.ignore_compatibility = True
+        project.get_provider()
+        # taken from pdm.actions.resolve_candidates_from_lockfile and adjusted
+        provider = ReusePinProvider(
+            locked_repository.all_candidates,
+            (),
+            locked_repository,
+            project.allow_prereleases,
+            {normalize_name(k): v for k, v in project.pyproject.resolution_overrides.items()},
+        )
         resolver = project.core.resolver_class(provider, BaseReporter())  # type: ignore
         reqs = list(requirements.values())
         candidates, *_ = resolve(resolver, reqs, project.environment.python_requires)
