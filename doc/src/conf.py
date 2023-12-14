@@ -11,14 +11,18 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+from datetime import date
+import tomli
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 # -- Project information -----------------------------------------------------
-
-project = "pdm-build-locked"
-copyright = "2023, sigma67"
-author = "sigma67"
+# -- Project information -----------------------------------------------------
+with open("../../pyproject.toml", "rb") as pyproject:
+    pyproject_toml = tomli.load(pyproject)["project"]
+    project = pyproject_toml["name"]
+    author = ", ".join(author["name"] for author in pyproject_toml["authors"])
+    copyright = f"{date.today().year}, pdm-project"
 
 # -- General configuration ---------------------------------------------------
 
@@ -41,21 +45,4 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-# -- Options for HTML output -------------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-if not on_rtd:
-    # Try to use the ReadTheDocs theme if installed.
-    # Default to the default alabaster theme if not.
-    try:
-        import sphinx_rtd_theme
-
-        html_theme = "sphinx_rtd_theme"
-        html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-    except ImportError:
-        html_theme = "alabaster"
-else:
-    # Set theme to 'default' for ReadTheDocs.
-    html_theme = "default"
+html_theme = "sphinx_rtd_theme"
