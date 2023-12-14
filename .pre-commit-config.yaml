@@ -1,0 +1,18 @@
+ci:
+  autoupdate_schedule: monthly
+repos:
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 'v0.1.6'
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix, --show-fixes]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        exclude: ^doc/src/.*\.py$
+        additional_dependencies:
+          - pytest
