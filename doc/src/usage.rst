@@ -1,6 +1,3 @@
-Instructions
-############
-
 When to use
 ************
 
@@ -49,10 +46,9 @@ This registers the plugin with pdm.
 
 .. hint::
 
-    To install the plugin locally, you need to run ``pdm install --plugins``.
-    This is only needed if you want to test the locking. On CI, plugins will be installed in the release job.
+    To install the plugin, you need to run ``pdm install --plugins``.
 
-Alternatively, you can activate the plugin globally by running ``pdm self add pdm-build-locked``.
+   Alternatively, you can activate the plugin globally by running ``pdm self add pdm-build-locked``.
 
 Activate the plugin
 ~~~~~~~~~~~~~~~~~~~
@@ -80,7 +76,12 @@ Activate the plugin in build backends
 
 You can even use this plugin without PDM. This is enabled by build backend hooks.
 
-Currently, both `pdm-backend <https://backend.pdm-project.org>` and `hatchling <https://hatch.pypa.io>` are supported.
+Currently, both `pdm-backend <https://backend.pdm-project.org>`__ and `hatchling <https://hatch.pypa.io>`__ are supported.
+
+.. hint::
+
+    This only works when you do not define your own ``optional-dependencies`` groups in ``pyproject.toml``.
+    Dynamic optional dependencies are not allowed to coexist with static ``optional-dependencies``.
 
 pdm-backend
 ~~~~~~~~~~~
