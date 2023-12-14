@@ -24,11 +24,19 @@ authors = [
     {name = "sigma67", email = "sigma67.github@gmail.com"},
     {name = "Frost Ming", email = "me@frostming.com"},
 ]
-dependencies = []
+dependencies = [
+    "tomli; python_version < \"3.11\""
+]
 requires-python = ">=3.8"
 
 [project.entry-points.pdm]
-pdm-build-locked = "pdm_build_locked:plugin"
+build-locked = "pdm_build_locked.plugin:main"
+
+[project.entry-points."pdm.build.hook"]
+build-locked = "pdm_build_locked.backend:BuildLockedHook"
+
+[project.entry-points.hatch]
+build-locked = "pdm_build_locked.hatchling"
 
 [build-system]
 requires = ["pdm-backend"]
@@ -51,6 +59,13 @@ dev = [
     "pkginfo>=1.9.6",
     "pytest-cov>=4.1.0",
     "pre-commit>=3.5.0",
+    "pdm-backend>=2.1.7",
+    "hatchling>=1.20.0",
+    "build>=1.0.3",
+]
+doc = [
+    "sphinx>=7.1.2",
+    "sphinx-rtd-theme>=2.0.0",
 ]
 
 [tool.ruff]
@@ -83,7 +98,6 @@ files = [
 ]
 mypy_path = "src"
 show_error_codes = true
-strict = true  # https://mypy.readthedocs.io/en/stable/config_file.html#confval-strict
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -92,6 +106,7 @@ addopts = "--verbose --cov --cov-report=term --cov-report=html --cov-report=xml 
 [tool.coverage.run]
 branch = true
 source = ["src"]
+omit = ["backend.py", "hatchling.py"]
 
 [tool.coverage.report]
 show_missing = true

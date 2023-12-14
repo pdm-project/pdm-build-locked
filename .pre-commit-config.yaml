@@ -13,6 +13,6 @@ repos:
     rev: v1.7.1
     hooks:
       - id: mypy
-        exclude: ^doc/src/.*\.py$
+        exclude: ^(doc/src/.*\.py|tests/data/.*\.py)$
         additional_dependencies:
           - pytest
