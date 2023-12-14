@@ -1,10 +1,9 @@
 [project]
 name = "pdm-build-locked"
 dynamic = ["version"]
-description = '''\
-        pdm-build-locked is a pdm plugin to add locked packages as additional optional dependency groups
-        to the distribution metadata
-    '''
+description = """
+    pdm-build-locked is a pdm plugin to add locked packages as additional \
+    optional dependency groups to the distribution metadata"""
 readme = "README.rst"
 keywords = [
     "pdm",
