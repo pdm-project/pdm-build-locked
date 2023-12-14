@@ -12,13 +12,13 @@
 #
 import os
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 # -- Project information -----------------------------------------------------
 
-project = 'pdm-build-locked'
-copyright = '2023, sigma67'
-author = 'sigma67'
+project = "pdm-build-locked"
+copyright = "2023, sigma67"
+author = "sigma67"
 
 # -- General configuration ---------------------------------------------------
 
@@ -28,13 +28,13 @@ author = 'sigma67'
 extensions = ["sphinx.ext.autodoc"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -51,11 +51,11 @@ if not on_rtd:
     # Default to the default alabaster theme if not.
     try:
         import sphinx_rtd_theme
-        html_theme = 'sphinx_rtd_theme'
+
+        html_theme = "sphinx_rtd_theme"
         html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
     except ImportError:
-        html_theme = 'alabaster'
+        html_theme = "alabaster"
 else:
     # Set theme to 'default' for ReadTheDocs.
-    html_theme = 'default'
-
+    html_theme = "default"

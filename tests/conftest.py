@@ -72,6 +72,6 @@ def invoke() -> Callable[..., Result]:
     runner = CliRunner(mix_stderr=False)
 
     def caller(args: Any) -> Result:
-        return runner.invoke(Core(), args, prog_name="pdm", catch_exceptions=False)  # type: ignore[arg-type]
+        return runner.invoke(Core(), args, prog_name="pdm", catch_exceptions=False)
 
     return caller

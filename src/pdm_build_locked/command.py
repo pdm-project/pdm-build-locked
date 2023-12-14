@@ -1,8 +1,10 @@
 """pdm build --locked command"""
+from __future__ import annotations
+
 import argparse
 import subprocess
 from contextlib import suppress
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from pdm.cli import actions
 from pdm.cli.commands.build import Command as BaseCommand
@@ -17,13 +19,12 @@ from resolvelib import BaseReporter
 DependencyList = Dict[str, Union[List[str], Dict[str, List[str]]]]
 
 # copied from pdm.models.repository due to TYPECHECKING guard
-CandidateKey = Tuple[str, Union[str, None], Union[str, None], bool]
+CandidateKey = Tuple[str, Optional[str], Optional[str], bool]
 
 
-class BuildCommand(BaseCommand):
+class BuildCommand(BaseCommand):  # type: ignore[misc]
     """subclasses pdm's build command and calls it via super()"""
 
-    description = BaseCommand.__doc__
     name = "build"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -43,7 +44,7 @@ class BuildCommand(BaseCommand):
         if dev_dependencies := project.pyproject.settings.get("dev-dependencies"):
             pdm_dev_dependencies = dev_dependencies.keys()
 
-        groups = set(group for group in project.all_dependencies.keys() if group not in pdm_dev_dependencies)
+        groups = {group for group in project.all_dependencies if group not in pdm_dev_dependencies}
 
         locked_groups = [self._get_locked_group_name(group) for group in groups]
         if duplicate_groups := groups.intersection(locked_groups):
@@ -58,7 +59,7 @@ class BuildCommand(BaseCommand):
         self._update_lockfile(project)
 
         # retrieve locked dependencies and write to pyproject
-        optional_dependencies: Dict[str, List[str]] = {}
+        optional_dependencies: dict[str, list[str]] = {}
 
         ###############################
         # determine locked dependencies
@@ -136,7 +137,7 @@ class BuildCommand(BaseCommand):
         return group_name
 
     @staticmethod
-    def _get_locked_packages(project: Project, group: str) -> List[str]:
+    def _get_locked_packages(project: Project, group: str) -> list[str]:
         """
         Determine locked dependency strings for direct and transitive dependencies
 
@@ -147,7 +148,7 @@ class BuildCommand(BaseCommand):
         Returns:
             Set of locked packages
         """
-        requirements: Dict[str, Requirement] = project.get_dependencies(group)
+        requirements: dict[str, Requirement] = project.get_dependencies(group)
 
         # get a ReusePinProvider - we don't want any calls to the remote repository,
         # we just want to read from the lockfile
@@ -162,7 +163,7 @@ class BuildCommand(BaseCommand):
             project.allow_prereleases,
             {normalize_name(k): v for k, v in project.pyproject.resolution_overrides.items()},
         )
-        resolver = project.core.resolver_class(provider, BaseReporter())  # type: ignore
+        resolver = project.core.resolver_class(provider, BaseReporter())
         reqs = list(requirements.values())
         candidates, *_ = resolve(resolver, reqs, project.environment.python_requires)
 
