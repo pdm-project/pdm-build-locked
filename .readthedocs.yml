@@ -13,3 +13,5 @@ python:
 
 sphinx:
   configuration: doc/src/conf.py
+
+formats: all
