@@ -23,7 +23,7 @@ DependencyList = Dict[str, Union[List[str], Dict[str, List[str]]]]
 CandidateKey = Tuple[str, Optional[str], Optional[str], bool]
 
 
-class BuildCommand(BaseCommand):  # type: ignore[misc]
+class BuildCommand(BaseCommand):
     """subclasses pdm's build command and calls it via super()"""
 
     name = "build"
