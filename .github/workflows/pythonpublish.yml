@@ -15,16 +15,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - uses: actions/setup-node@v3
         with:
-          python-version: '3.10'
-      - uses: pdm-project/setup-pdm@v3
-        name: Install PDM
+          node-version: 18
+
+      - run: npx changelogithub
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
       - name: Build package
         run: |
-          pdm build
+          pipx run build
       - name: Publish a Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
