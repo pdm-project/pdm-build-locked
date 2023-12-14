@@ -1,11 +1,10 @@
 """conftest"""
 import shutil
 from pathlib import Path
-from typing import Any, Callable
 
 import pytest
-from click.testing import CliRunner, Result
-from pdm.core import Core
+
+pytest_plugins = ["pdm.pytest"]
 
 
 @pytest.fixture(name="repo_path")
@@ -64,14 +63,3 @@ def fixture_data_base_path(tests_base_path: Path) -> Path:
         Path to the 'tests/data' folder.
     """
     return tests_base_path.joinpath("data").resolve()
-
-
-@pytest.fixture(scope="session")
-def invoke() -> Callable[..., Result]:
-    """Wrapper for CLIRunner"""
-    runner = CliRunner(mix_stderr=False)
-
-    def caller(args: Any) -> Result:
-        return runner.invoke(Core(), args, prog_name="pdm", catch_exceptions=False)
-
-    return caller

@@ -46,11 +46,10 @@ package-dir = "src"
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "pdm>=2.8.0",
+    "pdm[pytest]>=2.8.0",
     "pytest>=7.4.0",
     "pkginfo>=1.9.6",
     "pytest-cov>=4.1.0",
-    "click>=8.1.6",
     "pre-commit>=3.5.0",
 ]
 
