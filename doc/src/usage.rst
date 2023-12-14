@@ -31,10 +31,10 @@ To avoid misuse, we recommend deciding whether to use this plugin based on your 
 Usage
 *****
 
-This plugin must be installed *and* activated explicitly.
+This plugin can be used either in PDM CLI or build backends.
 
-Installation
-==================
+Activate the plugin in PDM CLI
+==============================
 
 ``pyproject.toml``
 
@@ -52,8 +52,10 @@ This registers the plugin with pdm.
     To install the plugin locally, you need to run ``pdm install --plugins``.
     This is only needed if you want to test the locking. On CI, plugins will be installed in the release job.
 
+Alternatively, you can activate the plugin globally by running ``pdm self add pdm-build-locked``.
+
 Activate the plugin
-*******************
+~~~~~~~~~~~~~~~~~~~
 
 To enable locked builds, set the ``locked`` entry in ``pyproject.toml``:
 
@@ -72,3 +74,41 @@ To enable locked builds, set the ``locked`` entry in ``pyproject.toml``:
 
     - run ``pdm build --locked``
     - set ``PDM_BUILD_LOCKED`` env var to ``true``
+
+Activate the plugin in build backends
+=====================================
+
+You can even use this plugin without PDM. This is enabled by build backend hooks.
+
+Currently, both `pdm-backend <https://backend.pdm-project.org>` and `hatchling <https://hatch.pypa.io>` are supported.
+
+pdm-backend
+~~~~~~~~~~~
+
+.. code-block::
+    :caption: pyproject.toml
+
+    [project]
+    dynamic = ["optional-dependencies"]
+
+    [build-system]
+    requires = ["pdm-backend", "pdm-build-locked"]
+    build-backend = "pdm.backend"
+
+    [tool.pdm.build]
+    locked = true
+
+hatchling
+~~~~~~~~~
+
+.. code-block::
+    :caption: pyproject.toml
+
+    [project]
+    dynamic = ["optional-dependencies"]
+
+    [build-system]
+    requires = ["hatchling", "pdm-build-locked"]
+    build-backend = "hatchling.build"
+
+    [tool.hatch.metadata.hooks.build-locked]

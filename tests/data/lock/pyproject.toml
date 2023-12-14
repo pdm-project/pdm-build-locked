@@ -1,9 +1,12 @@
 [project]
 name = "test-pdm"
 version = "0.1.0"
-dependencies = ["requests==2.31.0"]
+dependencies = ["requests"]
 requires-python = ">=3.8"
 
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
+
+[tool.pdm.build]
+locked = true

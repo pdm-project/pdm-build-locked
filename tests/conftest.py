@@ -1,8 +1,11 @@
 """conftest"""
 import shutil
 from pathlib import Path
+from typing import Generator
 
 import pytest
+
+from tests.utils import get_pyproject_hash
 
 pytest_plugins = ["pdm.pytest"]
 
@@ -63,3 +66,14 @@ def fixture_data_base_path(tests_base_path: Path) -> Path:
         Path to the 'tests/data' folder.
     """
     return tests_base_path.joinpath("data").resolve()
+
+
+@pytest.fixture
+def assert_pyproject_unmodified(data_base_path: Path, test_project: str) -> Generator[None, None, None]:
+    """
+    A pytest fixture to assert that pyproject.toml is reset properly to its original state
+    """
+    project = data_base_path / test_project
+    hash_before = get_pyproject_hash(project)
+    yield
+    assert get_pyproject_hash(project) == hash_before, "pyproject.toml hashes do not match, check for modifications"

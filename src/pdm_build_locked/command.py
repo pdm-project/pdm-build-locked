@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import inspect
+import os
 import subprocess
 from contextlib import suppress
 from typing import Dict, List, Optional, Tuple, Union
@@ -9,12 +11,11 @@ from typing import Dict, List, Optional, Tuple, Union
 from pdm.cli import actions
 from pdm.cli.commands.build import Command as BaseCommand
 from pdm.exceptions import PdmException
-from pdm.models.requirements import Requirement
 from pdm.project.core import Project
 from pdm.resolver import resolve
-from pdm.resolver.providers import ReusePinProvider
-from pdm.utils import normalize_name
 from resolvelib import BaseReporter
+
+from ._utils import get_locked_group_name
 
 DependencyList = Dict[str, Union[List[str], Dict[str, List[str]]]]
 
@@ -35,7 +36,11 @@ class BuildCommand(BaseCommand):  # type: ignore[misc]
 
     def handle(self, project: Project, options: argparse.Namespace) -> None:
         # pylint: disable=too-many-locals; we want this in a single function
-        if not options.locked and not project.pyproject.settings.get("build", {}).get("locked", False):
+        if (
+            not options.locked
+            and not project.pyproject.settings.get("build", {}).get("locked", False)
+            and os.getenv("PDM_BUILD_LOCKED", "false") == "false"
+        ):
             super().handle(project, options)
             return
 
@@ -46,36 +51,29 @@ class BuildCommand(BaseCommand):  # type: ignore[misc]
 
         groups = {group for group in project.all_dependencies if group not in pdm_dev_dependencies}
 
-        locked_groups = [self._get_locked_group_name(group) for group in groups]
+        locked_groups = [get_locked_group_name(group) for group in groups]
         if duplicate_groups := groups.intersection(locked_groups):
             raise PdmException(
                 f"You already have groups in your lockfile that would be overwritten by this command:"
                 f" {duplicate_groups}. Please remove them."
             )
 
-        ###################
         # update lockfile
-        ###################
         self._update_lockfile(project)
 
         # retrieve locked dependencies and write to pyproject
         optional_dependencies: dict[str, list[str]] = {}
 
-        ###############################
         # determine locked dependencies
-        ###############################
         project.core.ui.echo("pdm-build-locked - Resolving locked packages from lockfile...")
 
         for group in groups:
-            locked_group_name = self._get_locked_group_name(group)
+            locked_group_name = get_locked_group_name(group)
 
             locked_packages = self._get_locked_packages(project, group)
             optional_dependencies[locked_group_name] = locked_packages
 
-        ####################
         # write to pyproject
-        ####################
-
         # get reference to optional-dependencies in project.pyproject, or create it if it doesn't exist
         optional = project.pyproject.metadata.get(
             "optional-dependencies", None
@@ -88,9 +86,7 @@ class BuildCommand(BaseCommand):  # type: ignore[misc]
         # to prevent unclean scm status, we need to ignore pyproject.toml during build
         self._git_ignore_pyproject(project, True)
 
-        ################
         # build project
-        ################
         try:
             super().handle(project, options)
         finally:
@@ -111,30 +107,11 @@ class BuildCommand(BaseCommand):  # type: ignore[misc]
             project: the pdm project
         """
         strategy = actions.check_lockfile(project, raise_not_exist=False)
-        groups = list(project.all_dependencies.keys())
+        groups = list(project.iter_groups())
         with suppress(ValueError):
             groups.remove("dev")
         if strategy:
             actions.do_lock(project, strategy=strategy, groups=groups)
-
-    @staticmethod
-    def _get_locked_group_name(group: str) -> str:
-        """
-        Get the name of the locked group corresponding to the original group
-        default dependencies: locked
-        optional dependency groups: {group}-locked
-
-        Args:
-            group: original group name
-
-        Returns:
-            locked group name
-        """
-        group_name = "locked"
-        if group != "default":
-            group_name = f"{group}-{group_name}"
-
-        return group_name
 
     @staticmethod
     def _get_locked_packages(project: Project, group: str) -> list[str]:
@@ -148,24 +125,24 @@ class BuildCommand(BaseCommand):  # type: ignore[misc]
         Returns:
             Set of locked packages
         """
-        requirements: dict[str, Requirement] = project.get_dependencies(group)
+        from pdm.cli.actions import resolve_candidates_from_lockfile
 
-        # get a ReusePinProvider - we don't want any calls to the remote repository,
-        # we just want to read from the lockfile
-        locked_repository = project.locked_repository
-        locked_repository.ignore_compatibility = True
-        project.get_provider()
-        # taken from pdm.actions.resolve_candidates_from_lockfile and adjusted
-        provider = ReusePinProvider(
-            locked_repository.all_candidates,
-            (),
-            locked_repository,
-            project.allow_prereleases,
-            {normalize_name(k): v for k, v in project.pyproject.resolution_overrides.items()},
-        )
-        resolver = project.core.resolver_class(provider, BaseReporter())
-        reqs = list(requirements.values())
-        candidates, *_ = resolve(resolver, reqs, project.environment.python_requires)
+        supported_params = inspect.signature(resolve_candidates_from_lockfile).parameters
+        requirements = list(project.get_dependencies(group).values())
+        if "cross_platform" in supported_params:
+            # pdm 2.11.0+
+            candidates = resolve_candidates_from_lockfile(project, requirements, cross_platform=True, groups=[group])
+        else:  # pragma: no cover
+            # for older PDM versions, adjust resolve_candidates_from_lockfile with cross_platform=True
+            provider = project.get_provider(for_install=True)
+            provider.repository.ignore_compatibility = True
+            resolver = project.core.resolver_class(provider, BaseReporter())
+            candidates, *_ = resolve(
+                resolver,
+                requirements,
+                project.environment.python_requires,
+                max_rounds=int(project.config["strategy.resolve_max_rounds"]),
+            )
 
         return [str(c.req.as_pinned_version(c.version)) for c in candidates.values()]
 
@@ -181,4 +158,7 @@ class BuildCommand(BaseCommand):  # type: ignore[misc]
         """
         skip_worktree = "--skip-worktree" if ignore else "--no-skip-worktree"
         if project.pyproject.settings.get("version", {}).get("source", "") == "scm":
-            subprocess.run(["git", "update-index", skip_worktree, project.root.joinpath("pyproject.toml")], check=False)
+            with suppress(FileNotFoundError):
+                subprocess.run(
+                    ["git", "update-index", skip_worktree, project.root.joinpath("pyproject.toml")], check=False
+                )
