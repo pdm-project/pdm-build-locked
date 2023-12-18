@@ -112,6 +112,5 @@ def update_metadata_with_locked(metadata: dict[str, Any], root: Path) -> None:  
                     requirements.append(requirement_dict_to_string(package))
                 except UnsupportedRequirement as e:
                     print(f"Skipping unsupported requirement: {e}")
-        if not requirements:
-            raise UnsupportedRequirement(f"No valid PEP 508 requirements are found for group {group}")
+
         metadata.setdefault("optional-dependencies", {})[locked_group] = requirements
