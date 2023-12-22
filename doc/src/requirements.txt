@@ -1,3 +1,4 @@
 sphinx<7
 sphinx-rtd-theme
 tomli
+sphinx-design
