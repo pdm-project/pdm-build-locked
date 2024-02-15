@@ -71,7 +71,8 @@ class BuildCommand(BaseCommand):
             locked_group_name = get_locked_group_name(group)
 
             locked_packages = self._get_locked_packages(project, group)
-            optional_dependencies[locked_group_name] = locked_packages
+            if locked_packages:
+                optional_dependencies[locked_group_name] = locked_packages
 
         # write to pyproject
         # get reference to optional-dependencies in project.pyproject, or create it if it doesn't exist
