@@ -144,3 +144,28 @@ def test_build_locked_invalid(pdm: PDMCallable, data_base_path: Path, temp_dir: 
     ]
     result = pdm(cmd)
     assert "PdmException" in result.stderr
+
+
+@pytest.mark.usefixtures("assert_pyproject_unmodified")
+@pytest.mark.parametrize("test_project", ["empty"])
+def test_build_locked_empty(pdm: PDMCallable, data_base_path: Path, temp_dir: Path, test_project: str) -> None:
+    """this project's lockfile has empty dependencies and dynamic optional-dependencies
+    doesn't make sense to use the plugin in this case - but it should work nevertheless
+
+    Args:
+        pdm: PDM runner fixture
+        data_base_path: path to tests/data
+        temp_dir: path to tests/_temp/... temporary directory
+        test_project: path to test project
+    """
+    project_path = data_base_path.joinpath(test_project)
+    cmd = [
+        "build",
+        "--locked",
+        "--project",
+        project_path.as_posix(),
+        "--dest",
+        temp_dir.as_posix(),
+    ]
+    result = pdm(cmd)
+    assert result.exit_code == 0
