@@ -12,6 +12,7 @@
 #
 import os
 from datetime import date
+
 import tomli
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"

@@ -1,4 +1,5 @@
 """pdm build --locked command"""
+
 from __future__ import annotations
 
 import argparse
@@ -13,7 +14,7 @@ from pdm.cli.commands.build import Command as BaseCommand
 from pdm.exceptions import PdmException
 from pdm.project.core import Project
 from pdm.resolver import resolve
-from resolvelib import BaseReporter
+from resolvelib import BaseReporter, Resolver
 
 from ._utils import get_locked_group_name
 
@@ -77,7 +78,9 @@ class BuildCommand(BaseCommand):
         # write to pyproject
         # get reference to optional-dependencies in project.pyproject, or create it if it doesn't exist
         optional_key = "optional-dependencies"
-        optional = project.pyproject.metadata.get(optional_key, None) or project.pyproject.metadata.setdefault(optional_key, {})
+        optional = project.pyproject.metadata.get(optional_key, None) or project.pyproject.metadata.setdefault(
+            optional_key, {}
+        )
 
         # update target
         optional.update(optional_dependencies)
@@ -137,7 +140,7 @@ class BuildCommand(BaseCommand):
             # for older PDM versions, adjust resolve_candidates_from_lockfile with cross_platform=True
             provider = project.get_provider(for_install=True)
             provider.repository.ignore_compatibility = True
-            resolver = project.core.resolver_class(provider, BaseReporter())
+            resolver: Resolver = project.core.resolver_class(provider, BaseReporter())
             candidates, *_ = resolve(
                 resolver,
                 requirements,

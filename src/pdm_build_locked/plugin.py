@@ -1,8 +1,9 @@
 """
-    pdm-build-locked
+pdm-build-locked
 
-    A PDM plugin that adds locked dependencies to optional-dependencies on build
+A PDM plugin that adds locked dependencies to optional-dependencies on build
 """
+
 from pdm.core import Core
 
 from .command import BuildCommand
