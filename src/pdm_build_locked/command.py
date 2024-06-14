@@ -98,6 +98,12 @@ class BuildCommand(BaseCommand):
             for group in locked_groups:
                 with suppress(KeyError):
                     project.pyproject.metadata.get("optional-dependencies", {}).pop(group)
+            if not project.pyproject.settings:
+                del project.pyproject._data["tool"]["pdm"]  # type: ignore
+                if not project.pyproject._data["tool"]:
+                    del project.pyproject._data["tool"]
+
+
             project.pyproject.write(show_message=False)
             self._git_ignore_pyproject(project, False)
 

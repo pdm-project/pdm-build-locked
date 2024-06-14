@@ -3,9 +3,9 @@ from __future__ import annotations
 import os
 import sys
 import warnings
+from collections.abc import MutableMapping
 from pathlib import Path
 from typing import Any
-from collections.abc import MutableMapping
 
 if sys.version_info >= (3, 11):
     import tomllib
