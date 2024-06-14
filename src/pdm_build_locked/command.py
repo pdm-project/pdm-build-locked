@@ -99,7 +99,7 @@ class BuildCommand(BaseCommand):
                 with suppress(KeyError):
                     project.pyproject.metadata.get("optional-dependencies", {}).pop(group)
             if not project.pyproject.settings:
-                del project.pyproject._data["tool"]["pdm"]  # type: ignore
+                del project.pyproject._data["tool"]["pdm"]  # type: ignore[union-attr]
                 if not project.pyproject._data["tool"]:
                     del project.pyproject._data["tool"]
 
