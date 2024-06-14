@@ -103,7 +103,6 @@ class BuildCommand(BaseCommand):
                 if not project.pyproject._data["tool"]:
                     del project.pyproject._data["tool"]
 
-
             project.pyproject.write(show_message=False)
             self._git_ignore_pyproject(project, False)
 
