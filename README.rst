@@ -17,7 +17,7 @@ pdm-build-locked: Publish locked dependencies
     :alt: Commits since latest release
     :target: https://github.com/pdm-project/pdm-build-locked/commits
 
-|pypi-downloads||code-coverage||latest-release||commits-since-latest| 
+|pypi-downloads| |code-coverage| |latest-release| |commits-since-latest|
 
 pdm-build-locked is a pdm plugin to add locked packages as additional
 optional dependency groups to the distribution metadata.
