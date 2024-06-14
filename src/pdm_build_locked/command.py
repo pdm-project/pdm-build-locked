@@ -76,12 +76,12 @@ class BuildCommand(BaseCommand):
 
         # write to pyproject
         # get reference to optional-dependencies in project.pyproject, or create it if it doesn't exist
-        optional = project.pyproject.metadata.get(
-            "optional-dependencies", None
-        ) or project.pyproject.metadata.setdefault("optional-dependencies", {})
+        optional_key = "optional-dependencies"
+        optional = project.pyproject.metadata.get(optional_key, None) or project.pyproject.metadata.setdefault(optional_key, {})
 
         # update target
         optional.update(optional_dependencies)
+        project.pyproject.metadata[optional_key] = optional
         project.pyproject.write(show_message=False)
 
         # to prevent unclean scm status, we need to ignore pyproject.toml during build
