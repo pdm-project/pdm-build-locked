@@ -1,4 +1,5 @@
 """pdm build --locked command"""
+
 from __future__ import annotations
 
 import argparse
@@ -13,7 +14,7 @@ from pdm.cli.commands.build import Command as BaseCommand
 from pdm.exceptions import PdmException
 from pdm.project.core import Project
 from pdm.resolver import resolve
-from resolvelib import BaseReporter
+from resolvelib import BaseReporter, Resolver
 
 from ._utils import get_locked_group_name
 
@@ -76,12 +77,14 @@ class BuildCommand(BaseCommand):
 
         # write to pyproject
         # get reference to optional-dependencies in project.pyproject, or create it if it doesn't exist
-        optional = project.pyproject.metadata.get(
-            "optional-dependencies", None
-        ) or project.pyproject.metadata.setdefault("optional-dependencies", {})
+        optional_key = "optional-dependencies"
+        optional = project.pyproject.metadata.get(optional_key, None) or project.pyproject.metadata.setdefault(
+            optional_key, {}
+        )
 
         # update target
         optional.update(optional_dependencies)
+        project.pyproject.metadata[optional_key] = optional
         project.pyproject.write(show_message=False)
 
         # to prevent unclean scm status, we need to ignore pyproject.toml during build
@@ -95,6 +98,11 @@ class BuildCommand(BaseCommand):
             for group in locked_groups:
                 with suppress(KeyError):
                     project.pyproject.metadata.get("optional-dependencies", {}).pop(group)
+            if not project.pyproject.settings:
+                del project.pyproject._data["tool"]["pdm"]  # type: ignore[union-attr]
+                if not project.pyproject._data["tool"]:
+                    del project.pyproject._data["tool"]
+
             project.pyproject.write(show_message=False)
             self._git_ignore_pyproject(project, False)
 
@@ -137,7 +145,7 @@ class BuildCommand(BaseCommand):
             # for older PDM versions, adjust resolve_candidates_from_lockfile with cross_platform=True
             provider = project.get_provider(for_install=True)
             provider.repository.ignore_compatibility = True
-            resolver = project.core.resolver_class(provider, BaseReporter())
+            resolver: Resolver = project.core.resolver_class(provider, BaseReporter())
             candidates, *_ = resolve(
                 resolver,
                 requirements,

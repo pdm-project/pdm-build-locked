@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import sys
 import warnings
+from collections.abc import MutableMapping
 from pathlib import Path
 from typing import Any
 
@@ -66,7 +67,7 @@ def get_locked_group_name(group: str) -> str:
     return group_name
 
 
-def update_metadata_with_locked(metadata: dict[str, Any], root: Path) -> None:  # pragma: no cover
+def update_metadata_with_locked(metadata: MutableMapping[str, Any], root: Path) -> None:  # pragma: no cover
     """Inplace update the metadata(pyproject.toml) with the locked dependencies.
 
     Args:
