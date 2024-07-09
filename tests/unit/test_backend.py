@@ -3,6 +3,8 @@ from pathlib import Path
 import pytest
 from pkginfo import Wheel
 
+from tests.utils import count_group_dependencies
+
 
 def build_wheel(src_dir: Path, wheel_dir: Path) -> Wheel:
     from build.__main__ import build_package
@@ -24,6 +26,16 @@ def test_pdm_backend(temp_dir: Path, data_base_path: Path, test_project: str) ->
         'urllib3==2.1.0; extra == "locked"',
         'idna==3.6; extra == "locked"',
     }
+
+
+@pytest.mark.usefixtures("assert_pyproject_unmodified")
+@pytest.mark.parametrize("test_project", ["large-selected"])
+def test_pdm_backend_with_selected_groups(temp_dir: Path, data_base_path: Path, test_project: str) -> None:
+    project = data_base_path / test_project
+    wheel = build_wheel(project, temp_dir)
+    assert count_group_dependencies(wheel, "locked") == 26
+    assert count_group_dependencies(wheel, "extras-locked") == 0
+    assert count_group_dependencies(wheel, "cow-locked") == 0
 
 
 @pytest.mark.usefixtures("assert_pyproject_unmodified")
