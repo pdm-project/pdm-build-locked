@@ -57,7 +57,7 @@ source = "scm"
 [tool.pdm.build]
 package-dir = "src"
 locked = true
-lock-groups = ["default"]
+locked-groups = ["default"]
 
 [tool.pdm.dev-dependencies]
 dev = [

@@ -47,15 +47,15 @@ hatchling
 Select groups to lock
 ~~~~~~~~~~~~~~~~~~~~~
 
-By default, the default group and all optional groups will be locked, but you can specify the groups to lock by setting `lock-groups` in the configuration.
+By default, the default group and all optional groups will be locked, but you can specify the groups to lock by setting `locked-groups` in the configuration.
 
 .. code-block:: toml
     :caption: pyproject.toml
     # for pdm-backend
     [tool.pdm.build]
     locked = true
-    lock-groups = ["default", "optional1"]
+    locked-groups = ["default", "optional1"]
 
     # for hatchling
     [tool.hatch.metadata.hooks.build-locked]
-    lock-groups = ["default", "optional1"]
+    locked-groups = ["default", "optional1"]

@@ -50,7 +50,7 @@ class BuildCommand(BaseCommand):
         if dev_dependencies := project.pyproject.settings.get("dev-dependencies"):
             pdm_dev_dependencies = dev_dependencies.keys()
 
-        groups = project.pyproject.settings.get("build", {}).get("lock-groups", None)
+        groups = project.pyproject.settings.get("build", {}).get("locked-groups", None)
         if groups is None:
             groups = {group for group in project.all_dependencies if group not in pdm_dev_dependencies}
         else:

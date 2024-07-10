@@ -12,7 +12,7 @@ class BuildLockedMetadataHook(MetadataHookInterface):
     PLUGIN_NAME = "build-locked"
 
     def update(self, metadata: dict) -> None:
-        update_metadata_with_locked(metadata, Path(self.root), self.config.get("lock-groups"))
+        update_metadata_with_locked(metadata, Path(self.root), self.config.get("locked-groups"))
 
 
 @hookimpl
