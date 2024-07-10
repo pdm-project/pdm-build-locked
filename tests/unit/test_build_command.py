@@ -124,6 +124,23 @@ def test_build_locked_pyproject(pdm: PDMCallable, data_base_path: Path, temp_dir
 
 
 @pytest.mark.usefixtures("assert_pyproject_unmodified")
+@pytest.mark.parametrize("test_project", ["large-selected"])
+def test_build_locked_pyproject_with_selected_groups(
+    pdm: PDMCallable, data_base_path: Path, temp_dir: Path, test_project: str
+) -> None:
+    """this project has a lockfile and the pyproject.toml setting tool.pdm.build.locked"""
+    project_path = data_base_path.joinpath(test_project).as_posix()
+    cmd = ["build", "--project", project_path, "--dest", temp_dir.as_posix()]
+    result = pdm(cmd)
+    assert result.exit_code == 0
+
+    wheel = wheel_from_tempdir(temp_dir)
+    assert count_group_dependencies(wheel, "locked") == 26
+    assert count_group_dependencies(wheel, "extras-locked") == 0
+    assert count_group_dependencies(wheel, "cow-locked") == 0
+
+
+@pytest.mark.usefixtures("assert_pyproject_unmodified")
 @pytest.mark.parametrize("test_project", ["invalid"])
 def test_build_locked_invalid(pdm: PDMCallable, data_base_path: Path, temp_dir: Path, test_project: str) -> None:
     """this project's lockfile has a group containing "-locked" and will thus error

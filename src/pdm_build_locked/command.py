@@ -50,7 +50,11 @@ class BuildCommand(BaseCommand):
         if dev_dependencies := project.pyproject.settings.get("dev-dependencies"):
             pdm_dev_dependencies = dev_dependencies.keys()
 
-        groups = {group for group in project.all_dependencies if group not in pdm_dev_dependencies}
+        groups = project.pyproject.settings.get("build", {}).get("locked-groups", None)
+        if groups is None:
+            groups = {group for group in project.all_dependencies if group not in pdm_dev_dependencies}
+        else:
+            groups = set(groups)
 
         locked_groups = [get_locked_group_name(group) for group in groups]
         if duplicate_groups := groups.intersection(locked_groups):

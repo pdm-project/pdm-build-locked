@@ -42,3 +42,20 @@ hatchling
     build-backend = "hatchling.build"
 
     [tool.hatch.metadata.hooks.build-locked]
+
+
+Select groups to lock
+~~~~~~~~~~~~~~~~~~~~~
+
+By default, the default group and all optional groups will be locked, but you can specify the groups to lock by setting `locked-groups` in the configuration.
+
+.. code-block:: toml
+    :caption: pyproject.toml
+    # for pdm-backend
+    [tool.pdm.build]
+    locked = true
+    locked-groups = ["default", "optional1"]
+
+    # for hatchling
+    [tool.hatch.metadata.hooks.build-locked]
+    locked-groups = ["default", "optional1"]

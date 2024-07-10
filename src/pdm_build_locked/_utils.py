@@ -67,12 +67,15 @@ def get_locked_group_name(group: str) -> str:
     return group_name
 
 
-def update_metadata_with_locked(metadata: MutableMapping[str, Any], root: Path) -> None:  # pragma: no cover
+def update_metadata_with_locked(
+    metadata: MutableMapping[str, Any], root: Path, groups: list[str] | None = None
+) -> None:  # pragma: no cover
     """Inplace update the metadata(pyproject.toml) with the locked dependencies.
 
     Args:
         metadata (dict[str, Any]): The metadata dictionary
         root (Path): The path to the project root
+        groups (list[str], optional): The groups to lock. Defaults to default + all optional groups.
 
     Raises:
         UnsupportedRequirement
@@ -94,10 +97,10 @@ def update_metadata_with_locked(metadata: MutableMapping[str, Any], root: Path) 
         )
         return
 
-    groups = ["default"]
     optional_groups = list(metadata.get("optional-dependencies", {}))
     locked_groups = lockfile_content.get("metadata", {}).get("groups", [])
-    groups.extend(optional_groups)
+    if groups is None:
+        groups = ["default", *optional_groups]
     for group in groups:
         locked_group = get_locked_group_name(group)
         if locked_group in optional_groups:

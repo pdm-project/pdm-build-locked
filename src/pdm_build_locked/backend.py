@@ -20,7 +20,9 @@ class BuildLockedHook(BuildHookInterface):
 
     def pdm_build_initialize(self, context: Context) -> None:
         static_fields = list(context.config.metadata)
-        update_metadata_with_locked(context.config.metadata, context.root)
+        update_metadata_with_locked(
+            context.config.metadata, context.root, context.config.build_config.get("locked-groups")
+        )
         new_fields = set(context.config.metadata) - set(static_fields)
         for field in new_fields:
             if field in context.config.metadata.get("dynamic", []):
