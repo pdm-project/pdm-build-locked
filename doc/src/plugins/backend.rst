@@ -55,6 +55,7 @@ By default, the default group and all optional groups will be locked, but you ca
 
 .. code-block:: toml
     :caption: pyproject.toml
+
     # for pdm-backend
     [tool.pdm.build]
     locked = true
