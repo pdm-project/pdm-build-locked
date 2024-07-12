@@ -141,10 +141,10 @@ class BuildCommand(BaseCommand):
         from pdm.cli.actions import resolve_candidates_from_lockfile
 
         supported_params = inspect.signature(resolve_candidates_from_lockfile).parameters
-        requirements = list(project.get_dependencies(group).values())
+        requirements = list(project.get_dependencies(group))
         if "cross_platform" in supported_params:
             # pdm 2.11.0+
-            candidates = resolve_candidates_from_lockfile(project, requirements, cross_platform=True, groups=[group])
+            candidates = resolve_candidates_from_lockfile(project, requirements, groups=[group])
         else:  # pragma: no cover
             # for older PDM versions, adjust resolve_candidates_from_lockfile with cross_platform=True
             provider = project.get_provider(for_install=True)
