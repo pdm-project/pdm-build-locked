@@ -5,6 +5,8 @@ pdm-build-locked is a pdm plugin to enabling reproducible installs of Python CLI
 
 It achieves this by adding the pinned packages from PDM's lockfile as additional optional dependency groups to the distribution metadata.
 
+Compatible with ``pdm>=2.11``.
+
 
 .. toctree::
    :maxdepth: 2

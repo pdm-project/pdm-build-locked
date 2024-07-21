@@ -7,14 +7,13 @@ import inspect
 import os
 import subprocess
 from contextlib import suppress
+from importlib import import_module
 from typing import Dict, List, Optional, Tuple, Union
 
 from pdm.cli import actions
 from pdm.cli.commands.build import Command as BaseCommand
 from pdm.exceptions import PdmException
 from pdm.project.core import Project
-from pdm.resolver import resolve
-from resolvelib import BaseReporter, Resolver
 
 from ._utils import get_locked_group_name
 
@@ -141,21 +140,21 @@ class BuildCommand(BaseCommand):
         from pdm.cli.actions import resolve_candidates_from_lockfile
 
         supported_params = inspect.signature(resolve_candidates_from_lockfile).parameters
-        requirements = list(project.get_dependencies(group).values())
-        if "cross_platform" in supported_params:
-            # pdm 2.11.0+
-            candidates = resolve_candidates_from_lockfile(project, requirements, cross_platform=True, groups=[group])
-        else:  # pragma: no cover
-            # for older PDM versions, adjust resolve_candidates_from_lockfile with cross_platform=True
-            provider = project.get_provider(for_install=True)
-            provider.repository.ignore_compatibility = True
-            resolver: Resolver = project.core.resolver_class(provider, BaseReporter())
-            candidates, *_ = resolve(
-                resolver,
-                requirements,
-                project.environment.python_requires,
-                max_rounds=int(project.config["strategy.resolve_max_rounds"]),
+        if "env_spec" in supported_params:
+            # pdm 2.17.0+
+            requirements = list(project.get_dependencies(group))
+            markers = import_module("pdm.models.markers")
+            # use lowest supported specifier to include all deps - we don't know the target Python at build time
+            env_spec = markers.EnvSpec.from_spec(">=3.8")
+            candidates = resolve_candidates_from_lockfile(
+                project, requirements, cross_platform=True, groups=[group], env_spec=env_spec
             )
+        elif "cross_platform" in supported_params:
+            # pdm 2.11.0+
+            requirements = list(project.get_dependencies(group).values())  # type: ignore[attr-defined]
+            candidates = resolve_candidates_from_lockfile(project, requirements, cross_platform=True, groups=[group])
+        else:
+            raise PdmException("Unsupported pdm version. pdm>=2.11 is required")
 
         return [str(c.req.as_pinned_version(c.version)) for c in candidates.values()]
 
