@@ -57,9 +57,6 @@ source = "scm"
 package-dir = "src"
 locked = true
 
-[tool.pdm]
-plugins = ["pdm-build-locked @ file://c:/Users/Benedikt/PycharmProjects/pdm-build-locked"]
-
 [tool.pdm.dev-dependencies]
 dev = [
     # format
