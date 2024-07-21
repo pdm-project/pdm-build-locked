@@ -10,8 +10,12 @@ To set it up, a few configuration steps are required.
 Lockfile configuration
 ======================
 
-Your lockfile must be configured with the ``include_metadata`` strategy (``pdm>=2.11``) and include locks for the
-optional-dependencies groups you want to publish locked.
+Your lockfile must be configured with the ``inherit_metadata`` strategy (``pdm>=2.11``) and include locks for the optional-dependencies groups you want to publish locked.
+
+    .. note::
+        When running ``pdm lock``, ensure you select the appropriate dependency groups.
+
+        For instance, you can use ``pdm lock -G :all`` and then verify that the ``[metadata]`` section of the ``pdm.lock`` file includes the desired groups. For more details, refer to the ``Dependencies Selection:`` section in the ``pdm lock --help`` output.
 
 buildsystem configuration
 =========================
@@ -51,6 +55,7 @@ By default, the default group and all optional groups will be locked, but you ca
 
 .. code-block:: toml
     :caption: pyproject.toml
+
     # for pdm-backend
     [tool.pdm.build]
     locked = true

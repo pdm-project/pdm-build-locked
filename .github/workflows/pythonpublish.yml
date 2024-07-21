@@ -6,7 +6,7 @@ on:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: read
+  contents: write
 
 jobs:
   deploy:
@@ -15,14 +15,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 'lts/*'
 
       - run: npx changelogithub
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
