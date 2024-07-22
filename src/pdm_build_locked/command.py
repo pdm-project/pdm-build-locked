@@ -145,7 +145,7 @@ class BuildCommand(BaseCommand):
             requirements = list(project.get_dependencies(group))
             markers = import_module("pdm.models.markers")
             # use lowest supported specifier to include all deps - we don't know the target Python at build time
-            env_spec = markers.EnvSpec.from_spec(">=3.8")
+            env_spec = markers.EnvSpec.from_spec(str(project.python_requires))
             candidates = resolve_candidates_from_lockfile(
                 project, requirements, cross_platform=True, groups=[group], env_spec=env_spec
             )
