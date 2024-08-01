@@ -146,9 +146,7 @@ class BuildCommand(BaseCommand):
             markers = import_module("pdm.models.markers")
             # use lowest supported specifier to include all deps - we don't know the target Python at build time
             env_spec = markers.EnvSpec.from_spec(str(project.python_requires))
-            candidates = resolve_candidates_from_lockfile(
-                project, requirements, cross_platform=True, groups=[group], env_spec=env_spec
-            )
+            candidates = resolve_candidates_from_lockfile(project, requirements, groups=[group], env_spec=env_spec)
         elif "cross_platform" in supported_params:
             # pdm 2.11.0+
             requirements = list(project.get_dependencies(group).values())  # type: ignore[attr-defined]
