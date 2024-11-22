@@ -45,7 +45,7 @@ class BuildCommand(BaseCommand):
             return
 
         # we are not interested in the pdm dev-dependencies group
-        pdm_dev_dependencies = {}
+        pdm_dev_dependencies = set()
         if dev_dependencies := project.pyproject.settings.get("dev-dependencies"):
             pdm_dev_dependencies = dev_dependencies.keys()
 
