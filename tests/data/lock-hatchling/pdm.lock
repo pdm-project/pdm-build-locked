@@ -135,7 +135,7 @@ files = [
 [[package]]
 name = "urllib3"
 version = "2.1.0"
-requires_python = ">=3.8"
+requires_python = ">=3.9"
 summary = "HTTP library with thread-safe connection pooling, file post, and more."
 groups = ["default"]
 files = [
