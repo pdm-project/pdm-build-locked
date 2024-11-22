@@ -4,8 +4,11 @@
 [metadata]
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
-lock_version = "4.4.1"
-content_hash = "sha256:3e039d28afe849bff804fcb68262d8a5bcb44abd52281dd192fe8f8989bbc015"
+lock_version = "4.5.0"
+content_hash = "sha256:3e3850275ecee5f1364d3e1d824dfd10e6ed42a68103b21839ffa7e8f4a39670"
+
+[[metadata.targets]]
+requires_python = ">=3.9"
 
 [[package]]
 name = "certifi"
@@ -135,7 +138,7 @@ files = [
 [[package]]
 name = "urllib3"
 version = "2.1.0"
-requires_python = ">=3.8"
+requires_python = ">=3.9"
 summary = "HTTP library with thread-safe connection pooling, file post, and more."
 groups = ["default"]
 files = [

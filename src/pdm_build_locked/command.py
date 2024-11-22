@@ -45,12 +45,12 @@ class BuildCommand(BaseCommand):
             return
 
         # we are not interested in the pdm dev-dependencies group
-        pdm_dev_dependencies = []
+        pdm_dev_dependencies = {}
         if dev_dependencies := project.pyproject.settings.get("dev-dependencies"):
             pdm_dev_dependencies = dev_dependencies.keys()
 
         if dev_dependencies := getattr(project.pyproject, "dev_dependencies", None):
-            pdm_dev_dependencies.extend(dev_dependencies.keys())
+            pdm_dev_dependencies |= dev_dependencies.keys()
 
         groups = project.pyproject.settings.get("build", {}).get("locked-groups", None)
         if groups is None:

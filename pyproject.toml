@@ -13,11 +13,11 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 authors = [
     {name = "sigma67", email = "sigma67.github@gmail.com"},
@@ -26,7 +26,7 @@ authors = [
 dependencies = [
     "tomli; python_version < \"3.11\""
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.entry-points.pdm]
 build-locked = "pdm_build_locked.plugin:main"
