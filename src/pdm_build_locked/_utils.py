@@ -27,7 +27,7 @@ def requirement_dict_to_string(req_dict: dict[str, Any]) -> str:
         A PEP 582 requirement string
     """
     extra_string = f"[{','.join(extras)}]" if (extras := req_dict.get("extras", [])) else ""
-    version_string = f"=={version}" if ((version := req_dict.get("version")) and "url" not in req_dict) else ""
+    version_string = f"=={version}" if ((version := req_dict.get("version")) and "url" not in req_dict and "ref" not in req_dict) else ""
     if "name" not in req_dict:
         raise UnsupportedRequirement(f"Missing name in requirement: {req_dict}")
     if "editable" in req_dict:
