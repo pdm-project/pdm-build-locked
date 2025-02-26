@@ -27,7 +27,11 @@ def requirement_dict_to_string(req_dict: dict[str, Any]) -> str:
         A PEP 582 requirement string
     """
     extra_string = f"[{','.join(extras)}]" if (extras := req_dict.get("extras", [])) else ""
-    version_string = f"=={version}" if ((version := req_dict.get("version")) and "url" not in req_dict and "ref" not in req_dict) else ""
+    version_string = (
+        f"=={version}"
+        if ((version := req_dict.get("version")) and all(x not in req_dict for x in ("url", "ref", "revision")))
+        else ""
+    )
     if "name" not in req_dict:
         raise UnsupportedRequirement(f"Missing name in requirement: {req_dict}")
     if "editable" in req_dict:
@@ -38,9 +42,9 @@ def requirement_dict_to_string(req_dict: dict[str, Any]) -> str:
     url_string = ""
     if "url" in req_dict:
         url_string = f" @ {req_dict['url']}"
-    elif "ref" in req_dict:  # VCS requirement
+    elif "revision" in req_dict or "ref" in req_dict:  # VCS requirement
         vcs, repo = next((k, v) for k, v in req_dict.items() if k in ("git", "svn", "bzr", "hg"))  # pragma: no cover
-        url_string = f" @ {vcs}+{repo}@{req_dict.get('revision', req_dict['ref'])}"
+        url_string = f" @ {vcs}+{repo}@{req_dict.get('revision', req_dict.get('ref'))}"
     if "subdirectory" in req_dict:
         url_string = f"{url_string}#subdirectory={req_dict['subdirectory']}"
 
