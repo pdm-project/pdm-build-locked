@@ -58,11 +58,12 @@ package-dir = "src"
 locked = true
 locked-groups = ["default"]
 
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 doc = [
     # lint
     "sphinx>=1.4.1",
 ]
 lint = [
+    {include-group = "doc"},
     "ruff==0.9.0"
 ]
