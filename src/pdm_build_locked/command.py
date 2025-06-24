@@ -13,7 +13,6 @@ from typing import Dict, List, Optional, Tuple, Union
 from pdm.cli import actions
 from pdm.cli.commands.build import Command as BaseCommand
 from pdm.exceptions import PdmException
-from pdm.models.candidates import Candidate
 from pdm.project.core import Project
 
 from ._utils import get_locked_group_name
@@ -158,15 +157,7 @@ class BuildCommand(BaseCommand):
         else:
             raise PdmException("Unsupported pdm version. pdm>=2.11 is required")
 
-        def candidate_to_pin(c: Candidate) -> str:
-            """
-            Convert a candidate to a pinned version string
-            """
-            req = c.req.as_pinned_version(c.version)
-            extras = extras = f"[{','.join(sorted(req.extras))}]" if req.extras else ""
-            return f"{req.project_name}{extras}{req.specifier or ''}"
-
-        return [candidate_to_pin(c) for c in candidates.values()]
+        return [str(c.req.as_pinned_version(c.version)) for c in candidates.values()]
 
     @staticmethod
     def _git_ignore_pyproject(project: Project, ignore: bool = True) -> None:
