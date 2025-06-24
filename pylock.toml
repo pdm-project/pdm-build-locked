@@ -319,11 +319,11 @@ dependencies = [
 
 [[packages]]
 name = "pdm"
-version = "2.25.2"
+version = "2.25.3"
 requires-python = ">=3.9"
-sdist = {name = "pdm-2.25.2.tar.gz", url = "https://artifactory.vi.vector.int/artifactory/api/pypi/pes-global-pip-prod/packages/packages/f9/d6/ac4290999053e6afd21dc5406474e3b290e0ed1a600e320821a0b02bd659/pdm-2.25.2.tar.gz", hashes = {sha256 = "bff8e95c2737f68a41a8987e363803e587aea10dc9b95c34a9d3a5a117a8485f"}}
+sdist = {name = "pdm-2.25.3.tar.gz", url = "https://artifactory.vi.vector.int/artifactory/api/pypi/pes-global-pip-prod/packages/packages/bb/39/c90ab9757b546cdc14f38d2622881972a581956087be225a1091bcdf64fe/pdm-2.25.3.tar.gz", hashes = {sha256 = "6d0820f805dacf64d55a7fe56777e7d8349a2ee35efc3006f29b4573d1311c84"}}
 wheels = [
-    {name = "pdm-2.25.2-py3-none-any.whl",url = "https://artifactory.vi.vector.int/artifactory/api/pypi/pes-global-pip-prod/packages/packages/5c/0d/cab04a1e4e455e32e0fdcc6ce029a770413cf6d565d355888af6a0662a38/pdm-2.25.2-py3-none-any.whl",hashes = {sha256 = "fa8ad32fc34f6703c3f22105fc4576314ee21a6802cc7b381209760487ca453e"}},
+    {name = "pdm-2.25.3-py3-none-any.whl",url = "https://artifactory.vi.vector.int/artifactory/api/pypi/pes-global-pip-prod/packages/packages/a7/2c/6980f71976d2206cab37d93de643fd3df653fa31084d8d07a1e9dbd8cec5/pdm-2.25.3-py3-none-any.whl",hashes = {sha256 = "2c4c64ad0bf5a49b9f7159e1185a256d795579c330d27c8676dbe5a3fd53eb56"}},
 ]
 marker = "\"dev\" in dependency_groups"
 
@@ -1472,7 +1472,7 @@ marker = "\"dev\" in dependency_groups"
 dependencies = []
 
 [tool.pdm]
-hashes = {sha256 = "4047fe2a9e91bde97b7e618105eeb6cbdf33f7219219a3b5dafb3e84b0a20a59"}
+hashes = {sha256 = "150ccdb929cc1ebdb471d2e7428d426e95a3ebcc6c2d387e0681f31f5aba1ad2"}
 strategy = ["inherit_metadata", "static_urls"]
 
 [[tool.pdm.targets]]
