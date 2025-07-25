@@ -9,6 +9,10 @@ keywords = [
     "pdm",
     "plugin"
 ]
+license = "MIT"
+license-files = [
+  "LICENSE",
+]
 classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Operating System :: OS Independent",
