@@ -44,6 +44,9 @@ class BuildCommand(BaseCommand):
             super().handle(project, options)
             return
 
+        # we need to let pdm known that we're intending to write this file
+        project.pyproject.open_for_write()
+
         # we are not interested in the pdm dev-dependencies group
         pdm_dev_dependencies = set()
         if dev_dependencies := project.pyproject.settings.get("dev-dependencies"):
@@ -91,7 +94,6 @@ class BuildCommand(BaseCommand):
         # update target
         optional.update(optional_dependencies)
         project.pyproject.metadata[optional_key] = optional
-        project.pyproject.open_for_write()
         project.pyproject.write(show_message=False)
 
         # to prevent unclean scm status, we need to ignore pyproject.toml during build
