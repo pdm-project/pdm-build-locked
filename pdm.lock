@@ -5,7 +5,7 @@
 groups = ["default", "dev", "doc"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:d1f7798ad8e0d731829b3e5fda1bc7532a0d3d1e1f66e87e2b4d85f1da837637"
+content_hash = "sha256:7491d85c9b0d04167acb1800474b3600e4e06ee59c5731aeca41be32b662e12f"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
@@ -1041,7 +1041,7 @@ files = [
 
 [[package]]
 name = "pdm"
-version = "2.26.2"
+version = "2.26.1"
 requires_python = ">=3.9"
 summary = "A modern Python package and dependency manager supporting the latest PEP standards"
 groups = ["dev"]
@@ -1072,8 +1072,8 @@ dependencies = [
     "virtualenv>=20",
 ]
 files = [
-    {file = "pdm-2.26.2-py3-none-any.whl", hash = "sha256:b3b0199f6eec37284192a6feb26bef21f911d45d5aa4b02323ff211752abf04b"},
-    {file = "pdm-2.26.2.tar.gz", hash = "sha256:98207f8aabd6913a25ee0b4985e79e1652e2db274915f3ccf9408e33191ede4e"},
+    {file = "pdm-2.26.1-py3-none-any.whl", hash = "sha256:20c95f799c182c8ea4c33d81e51571e8fc6e2ab4c1fd34827856014a32f1f8c6"},
+    {file = "pdm-2.26.1.tar.gz", hash = "sha256:60a568201424a7193b661f6fed6e446e39695b52edc5e0904ba0b07fcaf2e787"},
 ]
 
 [[package]]
@@ -1092,19 +1092,19 @@ files = [
 
 [[package]]
 name = "pdm"
-version = "2.26.2"
+version = "2.26.1"
 extras = ["pytest"]
 requires_python = ">=3.9"
 summary = "A modern Python package and dependency manager supporting the latest PEP standards"
 groups = ["dev"]
 dependencies = [
-    "pdm==2.26.2",
+    "pdm==2.26.1",
     "pytest",
     "pytest-mock",
 ]
 files = [
-    {file = "pdm-2.26.2-py3-none-any.whl", hash = "sha256:b3b0199f6eec37284192a6feb26bef21f911d45d5aa4b02323ff211752abf04b"},
-    {file = "pdm-2.26.2.tar.gz", hash = "sha256:98207f8aabd6913a25ee0b4985e79e1652e2db274915f3ccf9408e33191ede4e"},
+    {file = "pdm-2.26.1-py3-none-any.whl", hash = "sha256:20c95f799c182c8ea4c33d81e51571e8fc6e2ab4c1fd34827856014a32f1f8c6"},
+    {file = "pdm-2.26.1.tar.gz", hash = "sha256:60a568201424a7193b661f6fed6e446e39695b52edc5e0904ba0b07fcaf2e787"},
 ]
 
 [[package]]
