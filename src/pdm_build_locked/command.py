@@ -44,6 +44,9 @@ class BuildCommand(BaseCommand):
             super().handle(project, options)
             return
 
+        # we need to let pdm known that we're intending to write this file
+        project.pyproject.open_for_write()
+
         # we are not interested in the pdm dev-dependencies group
         pdm_dev_dependencies = set()
         if dev_dependencies := project.pyproject.settings.get("dev-dependencies"):
