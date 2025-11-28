@@ -91,6 +91,7 @@ class BuildCommand(BaseCommand):
         # update target
         optional.update(optional_dependencies)
         project.pyproject.metadata[optional_key] = optional
+        project.pyproject.open_for_write()
         project.pyproject.write(show_message=False)
 
         # to prevent unclean scm status, we need to ignore pyproject.toml during build
