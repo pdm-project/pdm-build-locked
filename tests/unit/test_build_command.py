@@ -165,6 +165,29 @@ def test_build_locked_invalid(pdm: PDMCallable, data_base_path: Path, temp_dir: 
 
 
 @pytest.mark.usefixtures("assert_pyproject_unmodified")
+@pytest.mark.parametrize("test_project", ["override-incompatible"])
+def test_build_locked_incompatible_override(
+    pdm: PDMCallable, data_base_path: Path, temp_dir: Path, test_project: str
+) -> None:
+    """tool.pdm.resolution.overrides pins a version outside of the declared range of
+    project.dependencies for that package - the build must be aborted, see issue #8
+    """
+    project_path = data_base_path.joinpath(test_project)
+    cmd = [
+        "build",
+        "--locked",
+        "--project",
+        project_path.as_posix(),
+        "--dest",
+        temp_dir.as_posix(),
+    ]
+    result = pdm(cmd)
+    project_path.joinpath("pdm.lock").unlink()
+    assert result.exit_code != 0
+    assert "IncompatibleLockedRequirement" in result.stderr
+
+
+@pytest.mark.usefixtures("assert_pyproject_unmodified")
 @pytest.mark.parametrize("test_project", ["empty"])
 def test_build_locked_empty(pdm: PDMCallable, data_base_path: Path, temp_dir: Path, test_project: str) -> None:
     """this project's lockfile has empty dependencies and dynamic optional-dependencies

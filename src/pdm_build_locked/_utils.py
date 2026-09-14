@@ -3,9 +3,13 @@ from __future__ import annotations
 import os
 import sys
 import warnings
-from collections.abc import MutableMapping
+from collections.abc import Iterable, MutableMapping
 from pathlib import Path
 from typing import Any
+
+from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
+from packaging.version import Version
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -15,6 +19,45 @@ else:
 
 class UnsupportedRequirement(ValueError):
     """Requirement not complying with PEP 508"""
+
+
+class IncompatibleLockedRequirement(ValueError):
+    """Locked requirement's pinned version is incompatible with a declared requirement"""
+
+
+def check_locked_requirement_compatible(requirement_string: str, base_requirements: Iterable[str], group: str) -> None:
+    """Ensure a locked requirement's pinned version satisfies the version specifier of any
+    same-named requirement in ``base_requirements`` (requirements always installed alongside
+    the locked group, e.g. via ``project.dependencies``).
+
+    This catches ``tool.pdm.resolution.overrides`` pinning a version outside of the declared
+    range, which would otherwise make e.g. ``pip install mypkg[locked]`` unsatisfiable.
+
+    Args:
+        requirement_string: the locked requirement, as produced for the locked group
+        base_requirements: requirement strings always installed alongside the locked group
+        group: the group name, used in the error message
+
+    Raises:
+        IncompatibleLockedRequirement: if the pinned version doesn't satisfy a declared specifier
+    """
+    req = Requirement(requirement_string)
+    specifiers = list(req.specifier)
+    if len(specifiers) != 1 or specifiers[0].operator != "==":
+        return
+    pinned_version = Version(specifiers[0].version)
+    name = canonicalize_name(req.name)
+
+    for base_requirement_string in base_requirements:
+        base_req = Requirement(base_requirement_string)
+        if canonicalize_name(base_req.name) != name or not base_req.specifier:
+            continue
+        if not base_req.specifier.contains(pinned_version, prereleases=True):
+            raise IncompatibleLockedRequirement(
+                f"Locked dependency '{requirement_string}' for group '{group}' is incompatible with "
+                f"declared requirement '{base_requirement_string}'. This usually happens when "
+                "tool.pdm.resolution.overrides pins a version outside of the declared range."
+            )
 
 
 def requirement_dict_to_string(req_dict: dict[str, Any]) -> str:
@@ -113,12 +156,19 @@ def update_metadata_with_locked(
         if group not in locked_groups:
             print(f"Group {group} is not stored in the lockfile, skip locking dependencies for it.")
             continue
+        base_requirements = list(metadata.get("dependencies", []))
+        if group != "default":
+            base_requirements += list(metadata.get("optional-dependencies", {}).get(group, []))
+
         requirements: list[str] = []
         for package in lockfile_content.get("package", []):
             if group in package.get("groups", []):
                 try:
-                    requirements.append(requirement_dict_to_string(package))
+                    requirement_string = requirement_dict_to_string(package)
                 except UnsupportedRequirement as e:
                     print(f"Skipping unsupported requirement: {e}")
+                    continue
+                check_locked_requirement_compatible(requirement_string, base_requirements, group)
+                requirements.append(requirement_string)
 
         metadata.setdefault("optional-dependencies", {})[locked_group] = requirements

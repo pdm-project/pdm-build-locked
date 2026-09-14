@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from build import BuildBackendException
 from pkginfo import Wheel
 
 from tests.utils import count_group_dependencies
@@ -26,6 +27,23 @@ def test_pdm_backend(temp_dir: Path, data_base_path: Path, test_project: str) ->
         'urllib3==2.1.0; extra == "locked"',
         'idna==3.6; extra == "locked"',
     }
+
+
+@pytest.mark.usefixtures("assert_pyproject_unmodified")
+@pytest.mark.parametrize("test_project", ["lock-incompatible"])
+def test_pdm_backend_incompatible_locked_requirement(
+    temp_dir: Path, data_base_path: Path, test_project: str, capfd: pytest.CaptureFixture[str]
+) -> None:
+    """the lockfile pins requests==2.31.0, which doesn't satisfy the declared requests>=2.32 -
+    e.g. because tool.pdm.resolution.overrides pinned a version outside the declared range,
+    see issue #8
+    """
+    project = data_base_path / test_project
+    with pytest.raises(BuildBackendException):
+        build_wheel(project, temp_dir)
+    stderr = capfd.readouterr().err
+    assert "IncompatibleLockedRequirement" in stderr
+    assert "requests==2.31.0" in stderr
 
 
 @pytest.mark.usefixtures("assert_pyproject_unmodified")
