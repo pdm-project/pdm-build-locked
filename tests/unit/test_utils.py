@@ -4,7 +4,13 @@ from typing import Any
 
 import pytest
 
-from pdm_build_locked._utils import UnsupportedRequirement, get_locked_group_name, requirement_dict_to_string
+from pdm_build_locked._utils import (
+    IncompatibleLockedRequirement,
+    UnsupportedRequirement,
+    check_locked_requirement_compatible,
+    get_locked_group_name,
+    requirement_dict_to_string,
+)
 
 
 @pytest.mark.parametrize("group,locked_group", [("default", "locked"), ("foo", "foo-locked")])
@@ -92,3 +98,26 @@ def test_requirement_dict_to_string(req: dict[str, Any], expected: str):
 def test_requirement_dict_to_string_illegal(req: dict[str, Any], error: str):
     with pytest.raises(UnsupportedRequirement, match=error):
         requirement_dict_to_string(req)
+
+
+def test_check_locked_requirement_compatible_no_conflict():
+    check_locked_requirement_compatible("sphinx==7.1.2", ["sphinx>=7.1.2"], "default")
+
+
+def test_check_locked_requirement_compatible_no_matching_base_requirement():
+    # e.g. a transitive dependency that isn't declared anywhere in the base requirements
+    check_locked_requirement_compatible("certifi==2023.11.17", ["requests"], "default")
+
+
+def test_check_locked_requirement_compatible_unversioned_base_requirement():
+    check_locked_requirement_compatible("requests==2.31.0", ["requests"], "default")
+
+
+def test_check_locked_requirement_compatible_not_pinned():
+    # e.g. a URL/VCS requirement, which has no exact version to check
+    check_locked_requirement_compatible("foo @ https://packages.org/foo-0.4.0.tar.gz", ["foo>=1.0"], "default")
+
+
+def test_check_locked_requirement_compatible_conflict():
+    with pytest.raises(IncompatibleLockedRequirement, match=r"sphinx==6\.2\.1.*default.*sphinx>7"):
+        check_locked_requirement_compatible("sphinx==6.2.1", ["sphinx>7"], "default")

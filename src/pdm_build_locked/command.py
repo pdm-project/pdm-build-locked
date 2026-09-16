@@ -15,7 +15,7 @@ from pdm.cli.commands.build import Command as BaseCommand
 from pdm.exceptions import PdmException
 from pdm.project.core import Project
 
-from ._utils import get_locked_group_name
+from ._utils import check_locked_requirement_compatible, get_locked_group_name
 
 DependencyList = Dict[str, Union[List[str], Dict[str, List[str]]]]
 
@@ -161,7 +161,16 @@ class BuildCommand(BaseCommand):
         else:
             raise PdmException("Unsupported pdm version. pdm>=2.11 is required")
 
-        return [str(c.req.as_pinned_version(c.version)) for c in candidates.values()]
+        base_requirements = list(project.pyproject.metadata.get("dependencies", []))
+        if group != "default":
+            base_requirements += list(project.pyproject.metadata.get("optional-dependencies", {}).get(group, []))
+
+        locked_packages = []
+        for c in candidates.values():
+            requirement_string = str(c.req.as_pinned_version(c.version))
+            check_locked_requirement_compatible(requirement_string, base_requirements, group)
+            locked_packages.append(requirement_string)
+        return locked_packages
 
     @staticmethod
     def _git_ignore_pyproject(project: Project, ignore: bool = True) -> None:
